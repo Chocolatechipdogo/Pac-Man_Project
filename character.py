@@ -1,3 +1,4 @@
+from xml.dom.expatbuilder import ElementInfo
 import pygame as pg
 from pygame.locals import *
 from vector import Vector
@@ -34,8 +35,9 @@ class Character:
     #checks to see if the direction is valid by checking the directions dict 
     def valid_direction(self, direction):
         if direction != 'STOP':
-            if self.node.neighbors[direction] != None:
-                return True
+            if self.name in self.node.access[direction]:
+                if self.node.neighbors[direction] != None:
+                    return True
         return False
     
     def movetoNewNode(self, direction):
@@ -72,15 +74,30 @@ class Character:
     def validDirections(self):
         directions = []
         for key in ['UP', 'DOWN', 'LEFT', 'RIGHT']:
-            if self.valid_direction(key):
-                if key != self.direction * -1:
+            if self.valid_direction(key) != self.node:
+                if key != 'STOP':        #I CHANGED THIS FROM THIS : self.direction * -1
                     directions.append(key)
         if len(directions) == 0:
             directions.append(self.direction * -1)
+
+        #for debugging purposes
+        for key in range(0,len(directions)):
+            print("TESTING WHATS IN HERE: ", directions[key])
+
         return directions
     
     def randomDirection(self, directions):
-        return directions[randint(0, len(directions)-1)]
+        temp = directions[randint(0, len(directions)-1)]
+       #if temp - self.node.pos == (0,1):
+       #    self.goal = 'DOWN'
+       #elif temp - self.node.pos == (0, -1):
+       #    self.goal = 'UP'
+       #elif temp - self.node.pos == (-1, 0):
+       #    self.goal = 'LEFT'
+       #elif temp - self.node.pos == (1, 0):
+       #    self.goal = 'RIGHT'
+        return temp
+
     
     def update(self):
         self.position += self.directions[self.direction] * self.settings.pacman_speed
@@ -88,7 +105,8 @@ class Character:
         if self.moved_passed_node():
             self.node = self.targetNode
             directions = self.validDirections()
-            direction = self.randomDirection(directions)   
+            direction = self.randomDirection(directions)
+            print (direction)   
             if not self.disablePortal:
                 if self.node.neighbors['PORTAL'] is not None:
                     self.node = self.node.neighbors['PORTAL']
@@ -100,6 +118,6 @@ class Character:
 
             self.set_pos()
         
-    def draw(self, screen):
+    def draw(self, screen, color):
         pos = self.position.convert_tuple_int()
-        pg.draw.circle(screen, self.color, pos, self.radius)
+        pg.draw.circle(screen, color, pos, self.radius)

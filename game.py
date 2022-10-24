@@ -27,6 +27,7 @@ class Game:
         self.sound = Sound()
         self.pacman = Pacman(self, self.nodes.getStartNode())
         self.ghost = Ghost(self, self.nodes.getRandom_node())
+        self.nodes.denyHomeAccess(self.pacman)
         
         
         self.play_button = Button(screen= self.screen, text= 'Play', x= self.size[0] // 2, y= self.size[1] - 100)

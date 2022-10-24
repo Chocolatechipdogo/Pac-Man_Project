@@ -18,6 +18,18 @@ class Node:
             'RIGHT': None,
             'PORTAL': None
         }
+        self.access = {'UP':['PACMAN', 'BLINKY', 'PINKY', 'INKY', 'CLYDE', 'FRUIT',''],
+                       'DOWN':['PACMAN', 'BLINKY', 'PINKY', 'INKY', 'CLYDE', 'FRUIT',''],
+                       'LEFT':['PACMAN', 'BLINKY', 'PINKY', 'INKY', 'CLYDE', 'FRUIT',''],
+                       'RIGHT':['PACMAN', 'BLINKY', 'PINKY', 'INKY', 'CLYDE', 'FRUIT','']}
+
+    def deny_Access(self, direction, character):
+        if character.name in self.access[direction]:
+            self.access[direction].remove(character.name)
+    
+    def allow_Access(self, direction, character):
+        if character.name not in self.access[direction]:
+            self.access[direction].append(character.name)
         
     def draw(self):
         for n in self.neighbors.keys():
@@ -54,6 +66,7 @@ class Nodes:
             for col in list(range(mazedata.shape[1])):
                 if mazedata[row][col] in self.node_symbols:
                     x, y = self.create_key(col + delta_x, row + delta_y)
+                    #print(col + delta_x, row + delta_y) #debugging 
                     self.nodes_dict[(x, y)] = Node(game= self.game, x= x, y= y)
                     
     def create_key(self, x, y):
@@ -146,6 +159,38 @@ class Nodes:
             #connect the two protals in the dictionary
             self.nodes_dict[first_key].neighbors['PORTAL'] = self.nodes_dict[second_key]
             self.nodes_dict[second_key].neighbors['PORTAL'] = self.nodes_dict[first_key]
+
+    def deny_Access(self, col, row, direction, character):
+        node = self.getNodeFromTiles(col, row)
+        if node is not None:
+            node.deny_Access(direction, character)
+
+    def allow_Access(self, col, row, direction, character):
+        node = self.getNodeFromTiles(col, row)
+        if node is not None:
+            node.allow_Access(direction, character)
+    
+    def deny_Access_List(self, col, row, direction, characters):
+        for character in characters:
+            self.deny_Access(col, row, direction, character)
+
+    def allowAccessList(self, col, row, direction, characters):
+        for character in characters:
+            self.allowAccess(col, row, direction, character)
+
+    def denyHomeAccess(self, character):
+        self.nodes_dict[self.homekey].deny_Access('DOWN', character)
+
+    def allowHomeAccess(self, character):
+        self.nodes_dict[self.homekey].allow_Access('DOWN', character)
+
+    def denyHomeAccessList(self, characters):
+        for character in characters:
+            self.denyHomeAccess(character)
+
+    def allowHomeAccessList(self, characters):
+        for character in characters:
+            self.allowHomeAccess(character)
         
     def draw(self):
         for node in self.nodes_dict.values():

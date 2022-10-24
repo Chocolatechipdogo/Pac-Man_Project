@@ -8,6 +8,7 @@ from character import Character
 class Pacman(Character):
     def __init__(self, game, node):
         Character.__init__(self, game, node)
+        self.name = 'PACMAN'
         self.settings = Settings()
         self.screen = game.screen
         self.color = self.settings.yellow
